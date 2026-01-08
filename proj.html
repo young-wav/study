@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBC Architect Pro | Combinatorial Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --brand-blue: #2563eb;
+            --m-bg: #050a14;
+            --c-bg: #fdfdfd;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Modern Dark Theme */
+        [data-theme="modern"] { background-color: var(--m-bg); color: #f8fafc; }
+        [data-theme="modern"] .glass { 
+            background: rgba(15, 23, 42, 0.7); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+        [data-theme="modern"] input, [data-theme="modern"] textarea {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        /* Premium Light Theme */
+        [data-theme="classic"] { background-color: var(--c-bg); color: #0f172a; }
+        [data-theme="classic"] .glass { 
+            background: rgba(255, 255, 255, 0.7); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(0, 0, 0, 0.04); 
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05);
+        }
+        [data-theme="classic"] input, [data-theme="classic"] textarea {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.4); }
+
+        .step-transition { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loader-ring {
+            width: 50px; height: 50px;
+            border: 4px solid rgba(37, 99, 235, 0.1);
+            border-top: 4px solid var(--brand-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .stage-card { border-left: 5px solid var(--brand-blue); }
+        .pill { font-size: 0.65rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .pill-green { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+        .pill-red { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+        .pill-blue { background: rgba(37, 99, 235, 0.1); color: #2563eb; }
+
+        .suggestion-chip {
+            background: rgba(37, 99, 235, 0.05);
+            border: 1px dashed rgba(37, 99, 235, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .suggestion-chip:hover { background: rgba(37, 99, 235, 0.1); transform: translateX(5px); }
+
+        .payment-tab.active { background: var(--brand-blue); color: white; }
+
+        .format-card { border: 2px solid transparent; cursor: pointer; }
+        .format-card.active { border-color: var(--brand-blue); background: rgba(37, 99, 235, 0.05); }
+    </style>
+</head>
+<body data-theme="modern" class="antialiased min-h-screen">
+
+    <nav class="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center glass">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2.5 rounded-2xl shadow-xl shadow-blue-500/30">
+                <i class="fas fa-microchip text-white text-lg"></i>
+            </div>
+            <span class="font-extrabold text-2xl tracking-tighter" id="logoText">project.io</span>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <button onclick="toggleTheme()" class="bg-blue-600/10 px-4 py-2 rounded-2xl border border-blue-500/10 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                <i class="fas fa-palette"></i>
+                <span id="themeBtnText">Classic Mode</span>
+            </button>
+            <div class="bg-blue-600 px-4 py-1.5 rounded-full text-white text-[10px] font-bold shadow-lg shadow-blue-500/30 uppercase">
+                Combinatorial V4.0
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-28 pb-20 px-4 max-w-2xl mx-auto min-h-screen flex flex-col justify-center">
+
+        <!-- STEP 0: Landing -->
+        <div id="step-0" class="step-transition text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-[10px] font-bold uppercase tracking-widest mb-8">
+                <i class="fas fa-random"></i> Advanced Project Architecture
+            </div>
+            <h1 class="text-6xl font-extrabold leading-[0.9] mb-6 tracking-tighter">HBC <br><span class="text-blue-600">Architect.</span></h1>
+            <p class="text-slate-400 text-lg mb-10 leading-relaxed font-medium">Generate distinct, localized reports and topics that never repeat. Full 6-stage architecture with level-appropriate tone.</p>
+            <button onclick="goTo('level')" class="w-full btn-primary py-6 rounded-3xl text-lg font-bold text-white shadow-2xl">
+                Enter Architect <i class="fas fa-arrow-right text-sm ml-2"></i>
+            </button>
+        </div>
+
+        <!-- STEP 1: Level -->
+        <div id="step-level" class="hidden step-transition space-y-4">
+            <h2 class="text-center text-[11px] font-bold text-blue-600 uppercase tracking-[0.4em] mb-10">01 / Education Level</h2>
+            <div class="space-y-4">
+                <button onclick="selectLevel('Grade 7')" class="w-full p-8 glass rounded-[2.5rem] flex justify-between items-center group transition-all hover:border-blue-500">
+                    <span class="text-2xl font-bold uppercase">Grade 7</span>
+                    <i class="fas fa-chevron-right text-slate-400 group-hover:text-blue-500"></i>
+                </button>
+                <button onclick="selectLevel('O Level')" class="w-full p-8 glass rounded-[2.5rem] flex justify-between items-center group transition-all hover:border-blue-500">
+                    <span class="text-2xl font-bold uppercase">O Level</span>
+                    <i class="fas fa-chevron-right text-slate-400 group-hover:text-blue-500"></i>
+                </button>
+                <button onclick="selectLevel('A Level')" class="w-full p-8 glass rounded-[2.5rem] flex justify-between items-center group transition-all hover:border-blue-500">
+                    <span class="text-2xl font-bold uppercase">A Level</span>
+                    <i class="fas fa-chevron-right text-slate-400 group-hover:text-blue-500"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 2: Subject -->
+        <div id="step-subject" class="hidden step-transition space-y-6">
+            <h2 class="text-center text-[11px] font-bold text-blue-600 uppercase tracking-[0.4em] mb-4">02 / Select Subject</h2>
+            <div id="subject-box" class="space-y-3"></div>
+            <button onclick="goTo('level')" class="w-full text-slate-500 text-[10px] font-bold uppercase tracking-widest py-6">Back to Levels</button>
+        </div>
+
+        <!-- STEP 3: Context -->
+        <div id="step-context" class="hidden step-transition space-y-8">
+            <h2 class="text-center text-[11px] font-bold text-blue-600 uppercase tracking-[0.4em]">03 / Project Scope</h2>
+            <div class="glass p-8 rounded-[2.5rem] space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">School</label>
+                        <input type="text" id="school" placeholder="e.g. Shungu High" class="w-full p-4 rounded-2xl outline-none border border-transparent focus:border-blue-600 transition-all uppercase text-xs font-bold">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Location</label>
+                        <input type="text" id="city" placeholder="e.g. Kwekwe" class="w-full p-4 rounded-2xl outline-none border border-transparent focus:border-blue-600 transition-all uppercase text-xs font-bold">
+                    </div>
+                </div>
+                <div class="space-y-3 relative">
+                    <div class="flex justify-between px-2">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Problem Statement</label>
+                        <button onclick="suggestTopics()" id="suggest-btn" class="text-[9px] font-black text-blue-600 uppercase flex items-center gap-1">
+                            <i class="fas fa-wand-magic-sparkles"></i> Get Unique Suggestions
+                        </button>
+                    </div>
+                    <textarea id="topic" rows="4" placeholder="Describe the problem in detail..." class="w-full p-4 rounded-2xl outline-none border border-transparent focus:border-blue-600 transition-all uppercase text-xs font-bold leading-relaxed"></textarea>
+                    
+                    <div id="suggestion-box" class="hidden space-y-2 animate-in fade-in duration-300 pt-2">
+                        <p class="text-[8px] font-bold text-slate-500 uppercase tracking-widest ml-1">New Ideas for <span id="target-sub-display" class="text-blue-500"></span>:</p>
+                        <div id="suggestion-list" class="flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="goTo('format')" class="w-full btn-primary py-6 rounded-3xl text-lg font-bold text-white shadow-2xl">
+                Generation Format
+            </button>
+        </div>
+
+        <!-- STEP 4: Format Selection -->
+        <div id="step-format" class="hidden step-transition space-y-8">
+            <h2 class="text-center text-[11px] font-bold text-blue-600 uppercase tracking-[0.4em]">04 / Configuration</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div onclick="selectMode('general')" id="mode-general" class="format-card active glass p-8 rounded-[2.5rem] text-center space-y-4 transition-all">
+                    <i class="fas fa-file-invoice text-blue-600 text-3xl"></i>
+                    <h3 class="font-bold uppercase text-xs">General Mode</h3>
+                    <p class="text-[9px] text-slate-500 leading-tight">Standard Deep Architecture.</p>
+                </div>
+                <div onclick="selectMode('customize')" id="mode-customize" class="format-card glass p-8 rounded-[2.5rem] text-center space-y-4 transition-all">
+                    <i class="fas fa-sliders-h text-blue-600 text-3xl"></i>
+                    <h3 class="font-bold uppercase text-xs">Customize</h3>
+                    <p class="text-[9px] text-slate-500 leading-tight">Manual Stage Specification.</p>
+                </div>
+            </div>
+
+            <div id="customize-fields" class="hidden glass p-8 rounded-[2.5rem] space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                <p class="text-[9px] font-bold text-blue-600 uppercase tracking-widest text-center">Stage Directives</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <input type="text" id="cust-1" placeholder="Stage 1 Directive" class="w-full p-3 rounded-xl outline-none text-[10px] font-bold uppercase bg-white/5">
+                    <input type="text" id="cust-2" placeholder="Stage 2 Directive" class="w-full p-3 rounded-xl outline-none text-[10px] font-bold uppercase bg-white/5">
+                    <input type="text" id="cust-3" placeholder="Stage 3 Directive" class="w-full p-3 rounded-xl outline-none text-[10px] font-bold uppercase bg-white/5">
+                    <input type="text" id="cust-4" placeholder="Stage 4 Directive" class="w-full p-3 rounded-xl outline-none text-[10px] font-bold uppercase bg-white/5">
+                    <input type="text" id="cust-5" placeholder="Stage 5 Directive" class="w-full p-3 rounded-xl outline-none text-[10px] font-bold uppercase bg-white/5">
+                    <input type="text" id="cust-6" placeholder="Stage 6 Directive" class="w-full p-3 rounded-xl outline-none text-[10px] font-bold uppercase bg-white/5">
+                </div>
+            </div>
+
+            <button onclick="goTo('payment')" class="w-full btn-primary py-6 rounded-3xl text-lg font-bold text-white shadow-2xl">
+                Proceed to Checkout
+            </button>
+        </div>
+
+        <!-- STEP 5: Payment -->
+        <div id="step-payment" class="hidden step-transition space-y-8">
+            <div class="text-center">
+                <h2 class="text-4xl font-extrabold mb-2 tracking-tighter uppercase">Checkout</h2>
+                <p class="text-slate-500 font-bold uppercase text-[10px] tracking-widest">Architect Premium Access: $3.00 USD</p>
+            </div>
+            <div class="glass p-8 rounded-[2.5rem] space-y-6">
+                <div class="flex gap-2 p-1.5 bg-black/5 dark:bg-white/5 rounded-2xl">
+                    <button onclick="switchPay('mobile')" id="pay-mob-tab" class="payment-tab active flex-1 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all">Mobile Money</button>
+                    <button onclick="switchPay('card')" id="pay-card-tab" class="payment-tab flex-1 py-3 rounded-xl text-slate-500 font-bold text-[10px] uppercase tracking-widest transition-all">Debit / Card</button>
+                </div>
+                <div id="pay-mobile-area" class="space-y-4">
+                    <input type="text" placeholder="ECOCASH / ONE MONEY (07...)" class="w-full p-5 rounded-2xl outline-none font-bold text-xs uppercase tracking-widest">
+                </div>
+                <div id="pay-card-area" class="hidden space-y-4">
+                    <input type="text" placeholder="NAME ON CARD" class="w-full p-5 rounded-2xl outline-none font-bold text-xs">
+                    <input type="text" id="card-num" maxlength="19" placeholder="CARD NUMBER" class="w-full p-5 rounded-2xl outline-none font-bold text-xs">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" maxlength="5" placeholder="MM / YY" class="w-full p-5 rounded-2xl outline-none font-bold text-xs text-center">
+                        <input type="password" maxlength="3" placeholder="CVV" class="w-full p-5 rounded-2xl outline-none font-bold text-xs text-center">
+                    </div>
+                </div>
+            </div>
+            <button onclick="runLocalArchitect()" class="w-full btn-primary py-6 rounded-3xl text-lg font-bold text-white shadow-2xl">
+                Pay $3 & Architect Project
+            </button>
+        </div>
+
+        <!-- STEP 6: Loading -->
+        <div id="step-loading" class="hidden step-transition text-center py-20">
+            <div class="loader-ring mx-auto mb-10"></div>
+            <h2 class="text-4xl font-extrabold mb-4 tracking-tighter uppercase">Architecting...</h2>
+            <p id="loading-msg" class="text-blue-500 text-[10px] font-bold uppercase tracking-[0.4em] animate-pulse">Processing Combinatorial Logic...</p>
+        </div>
+
+        <!-- STEP 7: Report -->
+        <div id="step-report" class="hidden step-transition space-y-8 pb-32">
+            <div id="report-view" class="space-y-6"></div>
+            <div class="flex gap-4">
+                <button onclick="window.print()" class="flex-1 glass py-5 rounded-3xl font-bold flex items-center justify-center gap-3">
+                    <i class="fas fa-file-pdf text-red-500"></i> Print/Save PDF
+                </button>
+                <button onclick="location.reload()" class="flex-1 btn-primary py-5 rounded-3xl font-bold text-white">Restart Engine</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        let lvl = 'Grade 7';
+        let sub = '';
+        let currentMode = 'general';
+
+        const syllabus = {
+            "Grade 7": ["English", "Mathematics", "Indigenous Language", "Social Sciences", "Agric, Science & Tech", "Physical Education & Arts"],
+            "O Level": ["Mathematics", "English Language", "Indigenous Language", "Combined Science", "Heritage Studies", "Biology", "Chemistry", "Physics", "Computer Science", "Principles of Accounting", "Economics", "Business Studies", "Commerce", "History", "Geography", "FRS", "Literature in English", "Agriculture", "Food Technology", "Design and Technology", "Wood Technology", "Metal Technology", "Building Technology", "Textile Technology", "Art and Design", "Music", "Physical Education and Sport"],
+            "A Level": ["Mathematics", "Physics", "Chemistry", "Biology", "Software Engineering", "Computer Science", "Geography", "History", "Literature in English", "Sociology", "FRS", "Heritage Studies", "Economics", "Accounting", "Business Enterprise", "Agribusiness", "Building Technology", "Design and Technology", "Food Technology", "Textiles", "Film and Theatre Arts", "Music", "Art and Design", "Physical Education and Sport"]
+        };
+
+        const ArchitectEngine = {
+            // High-Resolution Target Mapping for Subjects
+            subjectTargets: {
+                stem: ["Waste Disposal", "Data Security", "Water Flow", "Lighting Efficiency", "Structural Stability", "Chemical Storage", "Thermal Regulation", "Circuit Reliability", "Mechanical Friction", "Bio-Degradability"],
+                humanities: ["Heritage Preservation", "Soil Erosion", "Social Interaction", "Cultural Integration", "Demographic Shifts", "Geographic Mapping", "Historical Awareness", "Resource Distribution", "Community Dynamics", "Moral Frameworks"],
+                commercial: ["Financial Auditing", "Inventory Management", "Marketing Strategy", "Cost Optimization", "Stock Leakage", "Customer Experience", "Accounting Precision", "Market Resilience", "Product Branding", "Supply Chain Gaps"],
+                technical: ["Workshop Safety", "Material Sourcing", "Fabrication Gaps", "Precision Cutting", "Ergonomic Design", "Maintenance Schedules", "Drafting Accuracy", "Power Saws", "Weld Integrity", "Structural Load"],
+                languages: ["Vocabulary Retention", "Reading Culture", "Essay Composition", "Mother Tongue Fluency", "Dialect Documentation", "Literary Analysis", "Public Speaking", "Creative Writing", "Syntax Proficiency", "Phonological Clarity"],
+                agric: ["Pest Infestation", "Soil Fertility", "Irrigation Systems", "Livestock Yield", "Crop Diversification", "Organic Fertilizers", "Agribusiness Resilience", "Tractor Maintenance", "Weather Monitoring", "Piggery Management"]
+            },
+
+            logicPool: {
+                vectors: {
+                    high: ["Systemic", "Obsolete", "Operational", "Strategic", "Analytic", "Institutional", "Critical", "Structural", "Inconsistent", "Bureaucratic"],
+                    mid: ["Inefficient", "Inadequate", "Manual", "Unreliable", "Poor", "Excessive", "Persistent", "Obvious", "Major", "Developing"],
+                    low: ["Broken", "Dirty", "Old", "Slow", "Bad", "Hard", "Missing", "Noisy", "Small", "Weak"]
+                },
+                modifiers: {
+                    high: ["hindering Systemic Synergy", "causing Operational Degress", "stalling Strategic Resilience", "affecting Infrastructure Load"],
+                    mid: ["affecting Academic Flow", "causing Resource Leakage", "hindering Learning Pace", "limiting School Efficiency"],
+                    low: ["making us slow", "which is very bad", "so students are sad", "making it hard to learn"]
+                },
+                challenges: [
+                    "Scarcity of premium materials in local district stores during the term.",
+                    "Fluctuating material costs causing significant budgetary adjustments.",
+                    "Data collection constraints due to tight term-time academic schedules.",
+                    "Unpredictable weather patterns in {city} affecting outdoor prototyping.",
+                    "Technical documentation requiring rigorous vetting to meet ZIMSEC standards.",
+                    "Logistical barriers in transporting the artifact to and from the workshop."
+                ],
+                achievements: [
+                    "Successful construction of a durable and syllabus-aligned artifact.",
+                    "Gained high-level subject mastery and practical technical application.",
+                    "Positive feedback from school stakeholders on the localized solution design.",
+                    "Artifact serves as a permanent reference model for lower-level learners.",
+                    "Verified a 45% reduction in the initial problem frequency at {school}.",
+                    "Recognition of original localized architecture in the final report dossier."
+                ],
+                recommendations: [
+                    "Establishment of a student-led maintenance committee for the artifact.",
+                    "Scaling the prototype to other blocks within {school} for total synergy.",
+                    "Regular quarterly monitoring of the solution's structural integrity.",
+                    "Digital documentation of the project cycle for future subject cohorts.",
+                    "Integration of this localized fix into the school's annual resource plan.",
+                    "Conducting a follow-up impact audit at the end of the academic year."
+                ]
+            },
+
+            pick: function(list, count) {
+                let shuffled = [...list].sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, count);
+            },
+
+            // Deterministic Subject Categorization for relevant topics
+            getSubjectCluster: function(subject) {
+                const s = subject.toLowerCase();
+                if (["mathematics", "physics", "chemistry", "science", "biology", "computer science", "software"].some(k => s.includes(k))) return "stem";
+                if (["agriculture", "agribusiness"].some(k => s.includes(k))) return "agric";
+                if (["english", "language", "literature"].some(k => s.includes(k))) return "languages";
+                if (["accounting", "business", "economics", "commerce"].some(k => s.includes(k))) return "commercial";
+                if (["building", "technology", "design", "wood", "metal", "textile", "food"].some(k => s.includes(k))) return "technical";
+                return "humanities";
+            },
+
+            generateUniqueTopics: function(subject, level) {
+                const cluster = this.getSubjectCluster(subject);
+                const targets = this.subjectTargets[cluster];
+                const pool = this.logicPool;
+                const levelKey = level === 'Grade 7' ? 'low' : (level === 'A Level' ? 'high' : 'mid');
+                
+                const results = new Set();
+                while(results.size < 5) {
+                    const v = this.pick(pool.vectors[levelKey], 1)[0];
+                    const t = this.pick(targets, 1)[0];
+                    const m = this.pick(pool.modifiers[levelKey], 1)[0];
+                    results.add(`${v} ${t} ${m}`);
+                }
+                return Array.from(results);
+            },
+
+            generateStage1: function(lvl, sub, topic, school, city, custom) {
+                let final = lvl === 'Grade 7' ? 
+                    `At ${school}, we see that ${topic} is a problem every day. It makes it hard for students to focus because the current ways are broken. Using my ${sub} knowledge, I want to help my school fix this so we can learn better in ${city}.` :
+                    `The persistent problem of ${topic} at ${school} represents a systemic failure in resource optimization. Analysis through the lens of the ${sub} syllabus reveals that current manual interventions are insufficient for the scale of the crisis in ${city}. This project aims to architect a bespoke solution aligned with Education 5.0 principles.`;
+                if (custom && custom.trim() !== "") final = `Directive: "${custom}".\n\n` + final;
+                return final;
+            },
+
+            generateStage4: function(lvl, sub, topic, school, city, custom) {
+                let text;
+                if (lvl === 'Grade 7') {
+                    text = `Paragraph 1: I chose the best idea for ${school}. It is simple and strong. I picked it because it doesn't cost much money.\n\nParagraph 2: I used wood and glue from ${city} to make it safe. It works well and my friends can use it easily without getting hurt.\n\nParagraph 3: I am proud of my project. It shows that Grade 7 students can solve school problems using ${sub}.`;
+                } else {
+                    text = `Paragraph 1: After a rigorous vetting of models, the 'Optimized Technical Pathway' was selected for its high reliability and low import cost. It addresses the core variables of ${topic} identified in ${school}.\n\nParagraph 2: Implementation focused on precision engineering using ${sub} laws. Materials were sourced within ${city} to ensure localized sustainability and ease of repair for school staff. Safety interlocks were integrated to satisfy ZIMSEC moderation benchmarks.\n\nParagraph 3: Ultimately, this development fulfills the Education 5.0 mandate by converting classroom theory into an institutional service. It demonstrates complete mastery of the ${lvl} syllabus objectives.`;
+                }
+                if (custom && custom.trim() !== "") text = `Directive: "${custom}".\n\n` + text;
+                return text;
+            },
+
+            generate: function(lvl, sub, school, city, topic, mode, customSpecs) {
+                const schools = this.pick([`${city} High`, `${city} Secondary`, `Heritage Academy`, `Local Mission`, `Annex Point`, `${city} Trust`], 3);
+                const merits = lvl === 'Grade 7' ? ["It is cheap.", "It is easy.", "It is safe."] : ["Cost-effective.", "Highly durable.", "Syllabus-aligned."];
+
+                return {
+                    title: `An investigation on the problem of ${topic} at ${school}`,
+                    stages: [
+                        { num: 1, name: "PROBLEM IDENTIFICATION", content: this.generateStage1(lvl, sub, topic, school, city, customSpecs[0]) },
+                        { num: 2, name: "INVESTIGATION", content: `We investigated 3 distinct models in ${city} to determine the most viable architecture.`,
+                          solutions: [
+                              { name: "Traditional Strategy", merits: merits, demerits: ["High setup time"], schools: [schools[0]] },
+                              { name: "Hybrid IKS Model", merits: merits, demerits: ["Needs training"], schools: [schools[1]] },
+                              { name: "Automated Fix", merits: merits, demerits: ["Tool dependency"], schools: [schools[2]] }
+                          ]
+                        },
+                        { num: 3, name: "GENERATION OF SOLUTIONS", content: `Using ${sub} frameworks, three specific solutions were drafted for the context of ${school}.`,
+                          solutions: [
+                              { name: "Solution Alpha", merits: merits, demerits: ["Initial lag"] },
+                              { name: "Solution Beta", merits: merits, demerits: ["Setup cost"] },
+                              { name: "Solution Gamma", merits: merits, demerits: ["Material limit"] }
+                          ]
+                        },
+                        { num: 4, name: "DEVELOPMENT", content: this.generateStage4(lvl, sub, topic, school, city, customSpecs[3]), reasons: this.pick(merits, 3) },
+                        { num: 5, name: "PRESENTATION", content: `The dossier includes artifacts, technical schematics, and performance tables for ZIMSEC moderation.` },
+                        { num: 6, name: "EVALUATION", content: `Reviewing the architecture revealed significant learning gains and institutional impact.`, 
+                          challenges: this.pick(this.logicPool.challenges, 3).map(c => c.replace("{city}", city)), 
+                          achievements: this.pick(this.logicPool.achievements, 3).map(a => a.replace("{topic}", topic).replace("{school}", school)), 
+                          recommendations: this.pick(this.logicPool.recommendations, 3).map(r => r.replace("{school}", school).replace("{city}", city)) 
+                        }
+                    ]
+                };
+            }
+        };
+
+        function toggleTheme() {
+            const b = document.body;
+            const t = b.getAttribute('data-theme') === 'modern' ? 'classic' : 'modern';
+            b.setAttribute('data-theme', t);
+            document.getElementById('themeBtnText').innerText = t === 'modern' ? 'Classic Mode' : 'Modern Mode';
+        }
+
+        function goTo(id) {
+            document.querySelectorAll('main > div').forEach(d => d.classList.add('hidden'));
+            document.getElementById(`step-${id}`).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        function selectLevel(l) {
+            lvl = l;
+            const sb = document.getElementById('subject-box');
+            sb.innerHTML = '';
+            syllabus[l].forEach(s => {
+                const b = document.createElement('button');
+                b.className = "w-full p-5 bg-black/5 dark:bg-white/5 rounded-2xl text-left font-bold text-sm hover:bg-blue-600 hover:text-white transition-all";
+                b.innerText = s;
+                b.onclick = () => { sub = s; goTo('context'); };
+                sb.appendChild(b);
+            });
+            goTo('subject');
+        }
+
+        function selectMode(m) {
+            currentMode = m;
+            document.getElementById('mode-general').classList.toggle('active', m === 'general');
+            document.getElementById('mode-customize').classList.toggle('active', m === 'customize');
+            document.getElementById('customize-fields').classList.toggle('hidden', m !== 'customize');
+        }
+
+        function suggestTopics() {
+            const list = document.getElementById('suggestion-list');
+            const box = document.getElementById('suggestion-box');
+            document.getElementById('target-sub-display').innerText = sub;
+            const topics = ArchitectEngine.generateUniqueTopics(sub, lvl);
+            list.innerHTML = '';
+            topics.forEach(s => {
+                const div = document.createElement('div');
+                div.className = "suggestion-chip px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-tighter";
+                div.innerText = s;
+                div.onclick = () => { document.getElementById('topic').value = s; box.classList.add('hidden'); };
+                list.appendChild(div);
+            });
+            box.classList.remove('hidden');
+        }
+
+        function switchPay(mode) {
+            document.getElementById('pay-mobile-area').classList.toggle('hidden', mode !== 'mobile');
+            document.getElementById('pay-card-area').classList.toggle('hidden', mode !== 'card');
+            document.getElementById('pay-mob-tab').classList.toggle('active', mode === 'mobile');
+            document.getElementById('pay-card-tab').classList.toggle('active', mode === 'card');
+        }
+
+        function runLocalArchitect() {
+            const topic = document.getElementById('topic').value;
+            const school = document.getElementById('school').value;
+            const city = document.getElementById('city').value;
+            if(!topic || !school) return alert("Required data missing.");
+            goTo('loading');
+            let i = 0;
+            const int = setInterval(() => { 
+                i++;
+                if (i >= 4) {
+                    clearInterval(int);
+                    const specs = [document.getElementById('cust-1').value, document.getElementById('cust-2').value, document.getElementById('cust-3').value, document.getElementById('cust-4').value, document.getElementById('cust-5').value, document.getElementById('cust-6').value];
+                    const report = ArchitectEngine.generate(lvl, sub, school, city, topic, currentMode, specs);
+                    render(report, {school, city});
+                }
+            }, 800);
+        }
+
+        function render(data, meta) {
+            const v = document.getElementById('report-view');
+            v.innerHTML = `
+                <div class="glass p-10 rounded-[2.5rem] border-l-8 border-blue-600 relative overflow-hidden">
+                    <span class="pill pill-blue mb-4 inline-block">DISTINCTION GRADE • ${lvl} TONE</span>
+                    <h1 class="text-2xl font-black mt-2 mb-4 uppercase tracking-tighter leading-tight">${data.title}</h1>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase">${lvl} • ${sub} • ${meta.school}</p>
+                </div>
+            `;
+
+            data.stages.forEach(s => {
+                let html = `<div class="glass p-8 rounded-[2.5rem] space-y-4 stage-card">
+                    <div class="flex gap-6 items-start">
+                        <div class="text-5xl font-black text-blue-600/10 leading-none shrink-0">${s.num}</div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold uppercase text-blue-600 mb-4">${s.name}</h3>
+                            <p class="text-sm leading-relaxed opacity-90 whitespace-pre-line">${s.content}</p>
+                        </div>
+                    </div>`;
+
+                if(s.solutions && (s.num === 2 || s.num === 3)) {
+                    s.solutions.forEach((sol, idx) => {
+                        html += `<div class="mt-6 p-6 bg-blue-500/5 rounded-[2rem] border border-blue-500/10">
+                            <h4 class="text-[11px] font-black text-blue-600 uppercase mb-4 tracking-widest">${s.num === 2 ? 'Investigated Model' : 'Proposed Solution'} ${idx+1}: ${sol.name}</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1"><p class="pill pill-green mb-2 inline-block">Merits</p>
+                                    ${sol.merits.map(m => `<div class="text-[10px] font-semibold flex gap-2"><i class="fas fa-check text-green-500 opacity-40"></i> ${m}</div>`).join('')}
+                                </div>
+                                <div class="space-y-1"><p class="pill pill-red mb-2 inline-block">Demerits</p>
+                                    ${sol.demerits.map(d => `<div class="text-[10px] font-semibold flex gap-2"><i class="fas fa-minus text-red-500 opacity-40"></i> ${d}</div>`).join('')}
+                                </div>
+                            </div>
+                            ${sol.schools ? `<div class="mt-4 pt-4 border-t border-blue-500/10 flex flex-wrap gap-2">
+                                ${sol.schools.map(sch => `<span class="bg-blue-600 text-white px-3 py-1 rounded-full text-[8px] font-bold uppercase">${sch}</span>`).join('')}
+                            </div>` : ''}
+                        </div>`;
+                    });
+                }
+
+                if(s.reasons && s.num === 4) html += `<div class="mt-8 space-y-2"><p class="text-[10px] font-black text-blue-600 uppercase tracking-widest px-2 mb-2">Development Rationale</p>${s.reasons.map(r => `<div class="p-4 bg-white/5 border border-white/5 rounded-2xl text-[10px] font-bold leading-relaxed"><i class="fas fa-certificate text-blue-500 mr-2"></i> ${r}</div>`).join('')}</div>`;
+
+                if(s.num === 6) {
+                    html += `<div class="mt-8 space-y-4">
+                        <div class="p-5 bg-red-500/5 rounded-2xl border border-red-500/10"><h4 class="text-[9px] font-black text-red-600 uppercase mb-3 tracking-widest">3 Challenges</h4>${s.challenges.map(c => `<p class="text-[11px] font-semibold opacity-80 leading-snug">• ${c}</p>`).join('')}</div>
+                        <div class="p-5 bg-green-500/5 rounded-2xl border border-green-500/10"><h4 class="text-[9px] font-black text-green-600 uppercase mb-3 tracking-widest">3 Achievements</h4>${s.achievements.map(a => `<p class="text-[11px] font-semibold opacity-80 leading-snug">• ${a}</p>`).join('')}</div>
+                        <div class="p-5 bg-blue-500/5 rounded-2xl border border-blue-500/10"><h4 class="text-[9px] font-black text-blue-600 uppercase mb-3 tracking-widest">3 Recommendations</h4>${s.recommendations.map(r => `<p class="text-[11px] font-semibold opacity-80 leading-snug">• ${r}</p>`).join('')}</div>
+                    </div>`;
+                }
+
+                v.innerHTML += html + `</div>`;
+            });
+            goTo('report');
+        }
+
+        window.onload = () => {
+            if(localStorage.getItem('hbc_remember') === 'true') {
+                document.getElementById('school').value = localStorage.getItem('hbc_school') || '';
+                document.getElementById('city').value = localStorage.getItem('hbc_city') || '';
+            }
+            goTo('0');
+        };
+    </script>
+</body>
+</html>
